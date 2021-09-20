@@ -104,8 +104,9 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 
 toolbox.register("mate", tools.cxTwoPoint)
 toolbox.register("mutate", tools.mutESLogNormal, c = 1, indpb=0.1)
-toolbox.register("select", tools.selTournament, tournsize=3)
+toolbox.register("parentselection", tools.selTournament, tournsize=3)
 toolbox.register("evaluate", evaluate)
+toolbox.register("survivalselection", tools.selBest)
 
 #to compile statistics
 stats = tools.Statistics(key=lambda ind: ind.fitness.values)
@@ -116,17 +117,17 @@ stats.register("max", np.max, axis=0)
 logbook = tools.Logbook()
 
 
+pop_size = 10
+
 def main():
-    pop = toolbox.population(n=100)
-    CXPB, MUTPB, NGEN = 0.5, 0.2, 30
+    pop = toolbox.population(n=pop_size)
+    CXPB, MUTPB, NGEN = 0.7, 0.2, 10
 
     # Evaluate the entire population
     #fitnesses = map(toolbox.evaluate, np.array(pop))
     #for ind, fit in zip(pop, fitnesses):
     #    ind.fitness.values = fit
-    for i in range(100):
-        #print(pop[i])
-        #print(toolbox.evaluate(np.array([pop[i]])))
+    for i in range(pop_size):
         pop[i].fitness.values = toolbox.evaluate(np.array([pop[i]]))
 
     # show first random generation
@@ -135,30 +136,53 @@ def main():
     print(record)
 
     for g in range(NGEN):
-        # Select the next generation individuals
-        offspring = toolbox.select(pop, len(pop))
+        # Select the next generation individuals - parent selection 
+        parents = toolbox.parentselection(pop, (len(pop)))
         # Clone the selected individuals
-        offspring = list(map(toolbox.clone, offspring))
+        parents = list(map(toolbox.clone, parents))
 
-        # Apply crossover and mutation on the offspring
-        for child1, child2 in zip(offspring[::2], offspring[1::2]):
+        
+        offspring = []
+        # Apply crossover on the offspring
+        for parent1, parent2 in zip(parents[::2], parents[1::2]): 
             if random.random() < CXPB:
-                toolbox.mate(child1, child2)
+                child1, child2 = toolbox.mate(parent1, parent2)
                 del child1.fitness.values
                 del child2.fitness.values
+                offspring.append(child1)
+                offspring.append(child2)
+        print(len(offspring))        
+        # run it a second time to create double offspring 
+        for parent1, parent2 in zip(parents[::2], parents[::-2]): 
+            if random.random() < CXPB:
+                child1, child2 = toolbox.mate(parent1, parent2)
+                del child1.fitness.values
+                del child2.fitness.values
+                offspring.append(child1)
+                offspring.append(child2)
+        print(len(offspring))
+        
+        
 
-        for mutant in offspring:
+        # mutation
+        for mutant in parents:
             if random.random() < MUTPB:
                 toolbox.mutate(mutant)
                 del mutant.fitness.values
 
         # Evaluate the individuals with an invalid fitness
-        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-        for i in range(len(invalid_ind)):
-            invalid_ind[i].fitness.values = toolbox.evaluate(np.array([invalid_ind[i]]))
-
+        #invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        #for i in range(len(invalid_ind)):
+        #    invalid_ind[i].fitness.values = toolbox.evaluate(np.array([invalid_ind[i]]))
+        for i in range(len(offspring)):
+            offspring[i].fitness.values = toolbox.evaluate(np.array([offspring[i]]))
+            
+        
+        survivedoffspring = toolbox.survivalselection(offspring, pop_size)
+        
         # The population is entirely replaced by the offspring
-        pop[:] = offspring
+        pop = survivedoffspring
+        print(len(pop))
         
         record = stats.compile(pop)
         print("Gen : " + str(g+1))
@@ -170,3 +194,5 @@ def main():
 lastgen = main()
 
 print(logbook)
+
+
