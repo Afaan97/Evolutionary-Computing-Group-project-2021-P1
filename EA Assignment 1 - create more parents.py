@@ -140,54 +140,48 @@ def main():
 
     for g in range(NGEN):
         # Select the next generation individuals - parent selection 
-        parents = toolbox.parentselection(pop, (len(pop)))
+        parents = toolbox.parentselection(pop, (2*len(pop)))
         # Clone the selected individuals
         parents = list(map(toolbox.clone, parents))
 
         
-        offspring = []
+        #offspring = []
         # Apply crossover on the offspring
-        for parent1, parent2 in zip(parents[::2], parents[1::2]): 
+        
+        #like this
+# =============================================================================
+#         for parent1, parent2 in zip(parents[::2], parents[1::2]): 
+#             if random.random() < CXPB:
+#                 child1, child2 = toolbox.mate(parent1, parent2)
+#                 del child1.fitness.values
+#                 del child2.fitness.values
+#                 offspring.append(child1)
+#                 offspring.append(child2)
+#         print(len(offspring)) 
+# =============================================================================
+        
+        #or like this
+        for child1, child2 in zip(parents[::2], parents[1::2]):
             if random.random() < CXPB:
-                child1, child2 = toolbox.mate(parent1, parent2)
+                toolbox.mate(child1, child2)
                 del child1.fitness.values
                 del child2.fitness.values
-                offspring.append(child1)
-                offspring.append(child2)
-        print(len(offspring))        
-        # run it a second time to create double offspring 
-        for parent1, parent2 in zip(parents[::2], parents[::-2]): 
-            if random.random() < CXPB:
-                child1, child2 = toolbox.mate(parent1, parent2)
-                del child1.fitness.values
-                del child2.fitness.values
-                offspring.append(child1)
-                offspring.append(child2)
-        print(len(offspring))
-        
-        
-        print(sum(offspring[0]))
-        print(sum(offspring[1]))
-        print(sum(offspring[2]))
+                
         # mutation
-        for mutant in offspring:
+        for mutant in parents:
             if random.random() < MUTPB:
                 toolbox.mutate(mutant)
                 del mutant.fitness.values
-        print(sum(offspring[0]))
-        print(sum(offspring[1]))
-        print(sum(offspring[2]))
-        
 
         # Evaluate the individuals with an invalid fitness
         #invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         #for i in range(len(invalid_ind)):
         #    invalid_ind[i].fitness.values = toolbox.evaluate(np.array([invalid_ind[i]]))
-        for i in range(len(offspring)):
-            offspring[i].fitness.values = toolbox.evaluate(np.array([offspring[i]]))
+        for i in range(len(parents)):
+            parents[i].fitness.values = toolbox.evaluate(np.array([parents[i]]))
             
         
-        survivedoffspring = toolbox.survivalselection(offspring, pop_size)
+        survivedoffspring = toolbox.survivalselection(parents, pop_size)
         
         # The population is entirely replaced by the offspring
         pop = survivedoffspring
@@ -205,7 +199,6 @@ for i in range(5):
     lastgen = main()
     logbooks.append(logbook)
     
-    
-print(logbooks)
-
+for logbook in logbooks:
+    print(logbook)
 

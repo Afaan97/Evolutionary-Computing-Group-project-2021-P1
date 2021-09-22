@@ -31,7 +31,7 @@ n_hidden_neurons = 10
 
 # initializes simulation in individual evolution mode, for single static enemy.
 env = Environment(experiment_name=experiment_name,
-                  enemies=[3],
+                  enemies=[8],
                   playermode="ai",
                   player_controller=player_controller(n_hidden_neurons),
                   enemymode="static",
@@ -118,7 +118,7 @@ stats.register("max", np.max, axis=0)
 logbook = tools.Logbook()
 
 
-pop_size = 10
+pop_size = 20
 
 #test
 
@@ -140,13 +140,15 @@ def main():
 
     for g in range(NGEN):
         # Select the next generation individuals - parent selection 
-        parents = toolbox.parentselection(pop, (len(pop)))
+        parents = toolbox.parentselection(pop, (2*len(pop)))
         # Clone the selected individuals
         parents = list(map(toolbox.clone, parents))
 
         
         offspring = []
         # Apply crossover on the offspring
+        
+        #like this
         for parent1, parent2 in zip(parents[::2], parents[1::2]): 
             if random.random() < CXPB:
                 child1, child2 = toolbox.mate(parent1, parent2)
@@ -154,30 +156,22 @@ def main():
                 del child2.fitness.values
                 offspring.append(child1)
                 offspring.append(child2)
-        print(len(offspring))        
-        # run it a second time to create double offspring 
-        for parent1, parent2 in zip(parents[::2], parents[::-2]): 
-            if random.random() < CXPB:
-                child1, child2 = toolbox.mate(parent1, parent2)
-                del child1.fitness.values
-                del child2.fitness.values
-                offspring.append(child1)
-                offspring.append(child2)
-        print(len(offspring))
+        print(len(offspring)) 
         
-        
-        print(sum(offspring[0]))
-        print(sum(offspring[1]))
-        print(sum(offspring[2]))
+        #or like this
+# =============================================================================
+#         for child1, child2 in zip(parents[::2], parents[1::2]):
+#             if random.random() < CXPB:
+#                 toolbox.mate(child1, child2)
+#                 del child1.fitness.values
+#                 del child2.fitness.values
+# =============================================================================
+                
         # mutation
         for mutant in offspring:
             if random.random() < MUTPB:
                 toolbox.mutate(mutant)
                 del mutant.fitness.values
-        print(sum(offspring[0]))
-        print(sum(offspring[1]))
-        print(sum(offspring[2]))
-        
 
         # Evaluate the individuals with an invalid fitness
         #invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
@@ -205,7 +199,7 @@ for i in range(5):
     lastgen = main()
     logbooks.append(logbook)
     
-    
-print(logbooks)
+for logbook in logbooks:
+    print(logbook)
 
 
