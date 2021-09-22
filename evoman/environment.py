@@ -8,7 +8,7 @@ import sys
 import gzip
 import pickle
 import numpy
-import pygame 
+import pygame
 from pygame.locals import *
 import struct
 import tmx
@@ -33,7 +33,7 @@ class Environment(object):
                  enemymode="static",          # ai or static
                  speed="fastest",             # normal or fastest
                  inputscoded="no",            # yes or no
-                 randomini="no",              # yes or no
+                 randomini="yes",              # yes or no
                  sound="off",                  # on or off
                  contacthurt="player",        # player or enemy
                  logs="on",                   # on or off
@@ -109,7 +109,7 @@ class Environment(object):
             self.joy = pygame.joystick.get_count()
 
         self.clock = pygame.time.Clock() # initializes game clock resource
-        
+
         if self.fullscreen:
             flags =  DOUBLEBUF  |  FULLSCREEN
         else:
