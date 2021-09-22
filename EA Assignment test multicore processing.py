@@ -121,6 +121,16 @@ logbook = tools.Logbook()
 pop_size = 10
 
 #test
+import psutil
+from multiprocessing import Pool
+num_cpus = psutil.cpu_count(logical=False)
+
+filters = [np.random.normal(size=(4, 4)) for _ in range(num_cpus)]
+
+
+def evaluateoffspring(ind):
+    return toolbox.evaluate(np.array([ind]))
+    
 
 def main():
     pop = toolbox.population(n=pop_size)
@@ -166,25 +176,20 @@ def main():
         print(len(offspring))
         
         
-        print(sum(offspring[0]))
-        print(sum(offspring[1]))
-        print(sum(offspring[2]))
+
         # mutation
-        for mutant in offspring:
+        for mutant in parents:
             if random.random() < MUTPB:
                 toolbox.mutate(mutant)
                 del mutant.fitness.values
-        print(sum(offspring[0]))
-        print(sum(offspring[1]))
-        print(sum(offspring[2]))
-        
 
         # Evaluate the individuals with an invalid fitness
         #invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         #for i in range(len(invalid_ind)):
         #    invalid_ind[i].fitness.values = toolbox.evaluate(np.array([invalid_ind[i]]))
         for i in range(len(offspring)):
-            offspring[i].fitness.values = toolbox.evaluate(np.array([offspring[i]]))
+            pool.map(evaluateoffspring, zip(num_cpus * offspring[i]))
+            offspring[i].fitness.values = evaluateoffspring(np.array([offspring[i]]))
             
         
         survivedoffspring = toolbox.survivalselection(offspring, pop_size)
@@ -200,12 +205,19 @@ def main():
         
     return pop
 
-logbooks = []
-for i in range(5):
-    lastgen = main()
-    logbooks.append(logbook)
-    
-    
-print(logbooks)
+#lastgen = main()
 
+#print(logbook)
 
+#test  
+pop = toolbox.population(n=pop_size)
+CXPB, MUTPB, NGEN = 0.7, 0.2, 10
+
+pop = np.expand_dims(np.array(pop), axis=1)
+pop.shape
+# Evaluate the entire population
+fitnesses = map(toolbox.evaluate, np.expand_dims(np.array(pop), axis=1))
+for ind, fit in zip(pop, fitnesses):
+    ind[0].fitness.values = fit
+#for i in range(pop_size):
+#    pop[i].fitness.values = toolbox.evaluate(np.array([pop[i]]))

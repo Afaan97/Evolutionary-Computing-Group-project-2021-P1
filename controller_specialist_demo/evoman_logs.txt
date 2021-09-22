@@ -12,6 +12,8 @@ RUN: run status: enemy: 2; fitness: 94.55014399275046; player life: 96; enemy li
 
 PARAMETER CHANGE: enemies = [3]
 
+RUN: run status: enemy: 3; fitness: 89.59342407327507; player life: 58; enemy life: 0; time: 496
+
 PARAMETER CHANGE: enemies = [4]
 
 PARAMETER CHANGE: enemies = [5]
