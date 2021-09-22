@@ -8,7 +8,7 @@ import sys
 import gzip
 import pickle
 import numpy
-import pygame
+import pygame 
 from pygame.locals import *
 import struct
 import tmx
