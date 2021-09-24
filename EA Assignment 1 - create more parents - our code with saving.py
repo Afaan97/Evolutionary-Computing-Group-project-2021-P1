@@ -181,6 +181,8 @@ def main():
             offspring[i].fitness.values = toolbox.evaluate(np.array([offspring[i]]))
             
         
+            
+        
         survivedoffspring = toolbox.survivalselection(offspring, pop_size)
         
         # The population is entirely replaced by the offspring
@@ -202,4 +204,4 @@ for i in range(5):
 for logbook in logbooks:
     print(logbook)
 
-
+logbook.

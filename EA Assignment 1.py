@@ -137,6 +137,10 @@ def main():
     record = stats.compile(pop)
     print("Gen 0: ")
     print(record)
+    
+    # create variables to later save the best individual
+    best_ind = 1
+    best_fit = -100
 
     for g in range(NGEN):
         # Select the next generation individuals - parent selection 
@@ -183,8 +187,14 @@ def main():
         #invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
         #for i in range(len(invalid_ind)):
         #    invalid_ind[i].fitness.values = toolbox.evaluate(np.array([invalid_ind[i]]))
+
         for i in range(len(offspring)):
-            offspring[i].fitness.values = toolbox.evaluate(np.array([offspring[i]]))
+            fitness = toolbox.evaluate(np.array([offspring[i]]))
+            offspring[i].fitness.values = fitness
+            if fitness > best_fit:
+                best_fit = fitness
+                best_ind = offspring[i]
+
             
         
         survivedoffspring = toolbox.survivalselection(offspring, pop_size)
@@ -198,7 +208,7 @@ def main():
         print(record)
         logbook.record(gen= (g +1), evals=30, **record)
         
-    return pop
+    return best_ind
 
 logbooks = []
 for i in range(5):
